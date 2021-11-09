@@ -1,6 +1,12 @@
 using VariationalInequalitySolver
-using Test
+using ADNLPModels, NLPModels
+using Random, Test
+
+Random.seed!(1234)
 
 @testset "VariationalInequalitySolver.jl" begin
-    # Write your tests here.
+  nls = ADNLSModel(x -> [x[1] - 1; 10 * (x[2] - x[1]^2)], [-1.2; 1.0], 2)
+  vi = NLSVIModel(nls)
+  xr = rand(2)
+  @test project(vi, xr) == xr
 end
