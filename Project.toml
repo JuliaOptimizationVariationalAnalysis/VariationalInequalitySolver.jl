@@ -4,6 +4,7 @@ authors = ["Tangi Migot tangi.migot@gmail.com"]
 version = "0.1.0"
 
 [deps]
+CaNNOLeS = "5a1c9e79-9c58-5ec0-afc4-3298fdea2875"
 FastClosures = "9aa1b823-49e4-5ca5-8b0f-3971ec8bab6a"
 LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
 NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"

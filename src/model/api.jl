@@ -11,8 +11,8 @@ export project!, project
 Computes ``F(x)``, the residual at x.
 """
 function residual(model::AbstractVIModel{T, S}, x::AbstractVector{T}) where {T, S}
-  @lencheck model.nvar x
-  Fx = S(undef, model.nvar)
+  @lencheck model.meta.nvar x
+  Fx = S(undef, model.meta.nvar)
   residual!(model, x, Fx)
 end
 
@@ -27,10 +27,10 @@ function residual! end
 Computes ``J(x)``, the Jacobian of the residual at x.
 """
 function jac_residual(model::AbstractVIModel, x::AbstractVector)
-  @lencheck model.nvar x
+  @lencheck model.meta.nvar x
   rows, cols = jac_structure_residual(model)
   vals = jac_coord_residual(model, x)
-  sparse(rows, cols, vals, model.nvar, model.nvar)
+  sparse(rows, cols, vals, model.meta.nvar, model.meta.nvar)
 end
 
 """
@@ -61,7 +61,7 @@ function jac_coord_residual! end
 Computes the Jacobian of the residual at `x` in sparse coordinate format.
 """
 function jac_coord_residual(model::AbstractVIModel, x::AbstractVector)
-  @lencheck model.nvar x
+  @lencheck model.meta.nvar x
   vals = Vector{eltype(x)}(undef, model.nnzj)
   jac_coord_residual!(model, x, vals)
 end
@@ -75,8 +75,8 @@ function jprod_residual(
   x::AbstractVector{T},
   v::AbstractVector,
 ) where {T, S}
-  @lencheck model.nvar x v
-  Jv = S(undef, model.nvar)
+  @lencheck model.meta.nvar x v
+  Jv = S(undef, model.meta.nvar)
   jprod_residual!(model, x, v, Jv)
 end
 
@@ -100,7 +100,7 @@ function jprod_residual!(
   Jv::AbstractVector,
 )
   @lencheck model.nnzj rows cols vals
-  @lencheck model.nvar v Jv
+  @lencheck model.meta.nvar v Jv
   increment!(model, :neval_jprod_residual)
   coo_prod!(rows, cols, vals, v, Jv)
 end
@@ -118,7 +118,7 @@ function jprod_residual!(
   v::AbstractVector,
   Jv::AbstractVector,
 )
-  @lencheck model.nvar x v Jv
+  @lencheck model.meta.nvar x v Jv
   @lencheck model.nnzj rows cols
   jprod_residual!(model, x, v, Jv)
 end
@@ -132,8 +132,8 @@ function jtprod_residual(
   x::AbstractVector{T},
   v::AbstractVector,
 ) where {T, S}
-  @lencheck model.nvar x v
-  Jtv = S(undef, model.nvar)
+  @lencheck model.meta.nvar x v
+  Jtv = S(undef, model.meta.nvar)
   jtprod_residual!(model, x, v, Jtv)
 end
 
@@ -157,7 +157,7 @@ function jtprod_residual!(
   Jtv::AbstractVector,
 )
   @lencheck model.nnzj rows cols vals
-  @lencheck model.nvar v Jtv
+  @lencheck model.meta.nvar v Jtv
   increment!(model, :neval_jtprod_residual)
   coo_prod!(cols, rows, vals, v, Jtv)
 end
@@ -175,7 +175,7 @@ function jtprod_residual!(
   v::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck model.nvar x v Jtv
+  @lencheck model.meta.nvar x v Jtv
   @lencheck model.nnzj rows cols
   jtprod_residual!(model, x, v, Jtv)
 end
@@ -185,9 +185,9 @@ end
 Computes ``J(x)``, the Jacobian of the residual at x, in linear operator form.
 """
 function jac_op_residual(model::AbstractVIModel{T, S}, x::AbstractVector{T}) where {T, S}
-  @lencheck model.nvar x
-  Jv = S(undef, model.nvar)
-  Jtv = S(undef, model.nvar)
+  @lencheck model.meta.nvar x
+  Jv = S(undef, model.meta.nvar)
+  Jtv = S(undef, model.meta.nvar)
   return jac_op_residual!(model, x, Jv, Jtv)
 end
 
@@ -202,7 +202,7 @@ function jac_op_residual!(
   Jv::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck model.nvar x Jv Jtv
+  @lencheck model.meta.nvar x Jv Jtv
   prod! = @closure (res, v, α, β) -> begin
     jprod_residual!(model, x, v, Jv)
     if β == 0
@@ -222,8 +222,8 @@ function jac_op_residual!(
     return res
   end
   return LinearOperator{eltype(x)}(
-    model.nvar,
-    model.nvar,
+    model.meta.nvar,
+    model.meta.nvar,
     false,
     false,
     prod!,
@@ -246,7 +246,7 @@ function jac_op_residual!(
   Jtv::AbstractVector,
 )
   @lencheck model.nnzj rows cols vals
-  @lencheck model.nvar Jv Jtv
+  @lencheck model.meta.nvar Jv Jtv
   prod! = @closure (res, v, α, β) -> begin
     jprod_residual!(model, rows, cols, vals, v, Jv)
     if β == 0
@@ -266,8 +266,8 @@ function jac_op_residual!(
     return res
   end
   return LinearOperator{eltype(vals)}(
-    model.nvar,
-    model.nvar,
+    model.meta.nvar,
+    model.meta.nvar,
     false,
     false,
     prod!,
@@ -290,7 +290,7 @@ function jac_op_residual!(
   Jv::AbstractVector,
   Jtv::AbstractVector,
 )
-  @lencheck model.nvar x Jv Jtv
+  @lencheck model.meta.nvar x Jv Jtv
   @lencheck model.nnzj rows cols
   vals = jac_coord_residual(model, x)
   decrement!(model, :neval_jac_residual)
@@ -304,10 +304,10 @@ Computes the linear combination of the Hessians of the residuals at `x` with coe
 A `Symmetric` object wrapping the lower triangle is returned.
 """
 function hess_residual(model::AbstractVIModel, x::AbstractVector, v::AbstractVector)
-  @lencheck model.nvar x v
+  @lencheck model.meta.nvar x v
   rows, cols = hess_structure_residual(model)
   vals = hess_coord_residual(model, x, v)
-  Symmetric(sparse(rows, cols, vals, model.nvar, model.nvar), :L)
+  Symmetric(sparse(rows, cols, vals, model.meta.nvar, model.meta.nvar), :L)
 end
 
 """
@@ -339,7 +339,7 @@ Computes the linear combination of the Hessians of the residuals at `x` with coe
 `v` in sparse coordinate format.
 """
 function hess_coord_residual(model::AbstractVIModel, x::AbstractVector, v::AbstractVector)
-  @lencheck model.nvar x v
+  @lencheck model.meta.nvar x v
   vals = Vector{eltype(x)}(undef, model.nnzh)
   hess_coord_residual!(model, x, v, vals)
 end
@@ -349,10 +349,10 @@ end
 Computes the Hessian of the j-th residual at x.
 """
 function jth_hess_residual(model::AbstractVIModel, x::AbstractVector, j::Int)
-  @lencheck model.nvar x
+  @lencheck model.meta.nvar x
   increment!(model, :neval_jhess_residual)
   decrement!(model, :neval_hess_residual)
-  v = [i == j ? one(eltype(x)) : zero(eltype(x)) for i = 1:(model.nvar)]
+  v = [i == j ? one(eltype(x)) : zero(eltype(x)) for i = 1:(model.meta.nvar)]
   return hess_residual(model, x, v)
 end
 
@@ -366,8 +366,8 @@ function hprod_residual(
   i::Int,
   v::AbstractVector,
 ) where {T, S}
-  @lencheck model.nvar x
-  Hv = S(undef, model.nvar)
+  @lencheck model.meta.nvar x
+  Hv = S(undef, model.meta.nvar)
   hprod_residual!(model, x, i, v, Hv)
 end
 
@@ -382,8 +382,8 @@ function hprod_residual! end
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
 function hess_op_residual(model::AbstractVIModel{T, S}, x::AbstractVector{T}, i::Int) where {T, S}
-  @lencheck model.nvar x
-  Hiv = S(undef, model.nvar)
+  @lencheck model.meta.nvar x
+  Hiv = S(undef, model.meta.nvar)
   return hess_op_residual!(model, x, i, Hiv)
 end
 
@@ -392,7 +392,7 @@ end
 Computes the Hessian of the i-th residual at x, in linear operator form. The vector `Hiv` is used as preallocated storage for the operation.
 """
 function hess_op_residual!(model::AbstractVIModel, x::AbstractVector, i::Int, Hiv::AbstractVector)
-  @lencheck model.nvar x Hiv
+  @lencheck model.meta.nvar x Hiv
   prod! = @closure (res, v, α, β) -> begin
     hprod_residual!(model, x, i, v, Hiv)
     if β == 0
@@ -403,8 +403,8 @@ function hess_op_residual!(model::AbstractVIModel, x::AbstractVector, i::Int, Hi
     return res
   end
   return LinearOperator{eltype(x)}(
-    model.nvar,
-    model.nvar,
+    model.meta.nvar,
+    model.meta.nvar,
     true,
     true,
     prod!,
@@ -435,7 +435,7 @@ Compute the projection of d over X, i.e.,
 ```
 """
 function project(model::AbstractVIModel{T, S}, x::AbstractVector{T}) where {T, S}
-  @lencheck model.nvar x
-  Px = S(undef, model.nvar)
+  @lencheck model.meta.nvar x
+  Px = S(undef, model.meta.nvar)
   project!(model, x, Px)
 end
