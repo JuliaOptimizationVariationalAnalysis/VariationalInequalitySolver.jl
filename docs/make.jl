@@ -6,11 +6,11 @@ DocMeta.setdocmeta!(VariationalInequalitySolver, :DocTestSetup, :(using Variatio
 makedocs(;
     modules=[VariationalInequalitySolver],
     authors="Tangi Migot tangi.migot@gmail.com",
-    repo="https://github.com/tmigot/VariationalInequalitySolver.jl/blob/{commit}{path}#{line}",
+    repo="https://github.com/JuliaOptimizationVariationalAnalysis/VariationalInequalitySolver.jl/blob/{commit}{path}#{line}",
     sitename="VariationalInequalitySolver.jl",
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://tmigot.github.io/VariationalInequalitySolver.jl",
+        canonical="https://JuliaOptimizationVariationalAnalysis.github.io/VariationalInequalitySolver.jl",
         assets=String[],
     ),
     pages=[
@@ -19,6 +19,6 @@ makedocs(;
 )
 
 deploydocs(;
-    repo="github.com/tmigot/VariationalInequalitySolver.jl",
-    devbranch="master",
+    repo="github.com/JuliaOptimizationVariationalAnalysis/VariationalInequalitySolver.jl",
+    devbranch="main",
 )
