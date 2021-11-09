@@ -88,3 +88,10 @@ end
 function NLPModels.hprod_residual!(::NLSProjector, x, i, v, Hiv)
   return Hiv
 end
+
+for meth in [:cons!, :jth_congrad!, :jth_sparse_congrad, :jac_structure!, :jac_coord!, :jprod!, :jtprod!, :jth_hess_coord!, :jth_hprod!, :ghjvprod!, :hess_structure!, :hess_coord!, :hprod!]
+  premeth = Symbol("NLPModels.", meth)
+  @eval begin
+    $meth(model::NLSProjector, args...; kwargs...) = $meth(model.model, args...; kwargs...)
+  end
+end

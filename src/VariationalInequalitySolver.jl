@@ -1,6 +1,6 @@
 module VariationalInequalitySolver
 
-using FastClosures, LinearAlgebra, NLPModels
+using FastClosures, LinearAlgebra, Logging, NLPModels
 
 abstract type AbstractVIModel{T, S} end
 
@@ -42,7 +42,9 @@ using CaNNOLeS
 function project!(model::NLSVIModel, d::AbstractVector{T}, Px::AbstractVector{T}) where {T, S}
   # Here we need to solve the optimization problem
   proj = NLSProjector(model.nls, d)
-  stats = cannoles(proj)
+  stats = with_logger(NullLogger()) do
+    cannoles(proj)
+  end
   if stats.status != :first_order
     @warn "There was an error in the projection computation"
   end
