@@ -52,6 +52,7 @@ function project!(model::NLSVIModel, d::AbstractVector{T}, Px::AbstractVector{T}
   return Px
 end
 
+include("solvers/projectionVI.jl")
 #=
 include("projector/ProjNLP.jl")
 include("solvers/penalizedVI.jl")

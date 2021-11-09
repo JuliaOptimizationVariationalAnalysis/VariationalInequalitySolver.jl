@@ -9,4 +9,5 @@ Random.seed!(1234)
   vi = NLSVIModel(nls)
   xr = rand(2)
   @test project(vi, xr) == xr
+  sol = ProjectionVI(vi, xr)
 end
