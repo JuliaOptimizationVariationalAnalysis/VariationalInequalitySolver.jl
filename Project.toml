@@ -1,0 +1,7 @@
+name = "VariationalInequalitySolver"
+uuid = "ed570689-83cb-4447-bc21-43803b1f175a"
+authors = ["Tangi Migot tangi.migot@gmail.com"]
+version = "0.1.0"
+
+[compat]
+julia = "1"
