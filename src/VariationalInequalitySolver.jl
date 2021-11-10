@@ -2,8 +2,17 @@ module VariationalInequalitySolver
 
 using FastClosures, LinearAlgebra, Logging, NLPModels, Stopping
 
-import NLPModels: residual!, jac_structure_residual!, jac_coord_residual!, jprod_residual!, jtprod_residual!, jac_op_residual!, hess_structure_residual!, hess_coord_residual!, hprod_residual!, hess_op_residual!
-
+import NLPModels:
+  residual!,
+  jac_structure_residual!,
+  jac_coord_residual!,
+  jprod_residual!,
+  jtprod_residual!,
+  jac_op_residual!,
+  hess_structure_residual!,
+  hess_coord_residual!,
+  hprod_residual!,
+  hess_op_residual!
 
 abstract type AbstractVIModel{T, S} end
 
@@ -29,12 +38,23 @@ mutable struct NLSVIModel{S, T, NLP <: AbstractNLSModel{T, S}} <: AbstractVIMode
     @lencheck nls.nls_meta.nequ nls.meta.x0 #test that nls.meta.nvar == nls.nls_meta.nequ
     return new{S, T, typeof(nls)}(
       VIMeta{T, S}(nls.meta.x0, nls.meta.nvar, nls.nls_meta.nnzj, nls.nls_meta.nnzh),
-      nls
+      nls,
     )
   end
 end
 
-for meth in [:residual!, :jac_structure_residual!, :jac_coord_residual!, :jprod_residual!, :jtprod_residual!, :jac_op_residual!, :hess_structure_residual!, :hess_coord_residual!, :hprod_residual!, :hess_op_residual!]
+for meth in [
+  :residual!,
+  :jac_structure_residual!,
+  :jac_coord_residual!,
+  :jprod_residual!,
+  :jtprod_residual!,
+  :jac_op_residual!,
+  :hess_structure_residual!,
+  :hess_coord_residual!,
+  :hprod_residual!,
+  :hess_op_residual!,
+]
   @eval begin
     $meth(model::NLSVIModel, args...; kwargs...) = $meth(model.nls, args...; kwargs...)
   end
