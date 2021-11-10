@@ -12,4 +12,6 @@ NLPModels = "a4795742-8479-5a88-8948-cc11e1c8c1a6"
 
 [compat]
 CaNNOLeS = "0.5"
+FastClosures = "0.3"
+NLPModels = "0.17"
 julia = "1"
