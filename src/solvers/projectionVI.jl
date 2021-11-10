@@ -1,11 +1,6 @@
 export ProjectionVI
 
-function ProjectionVI(
-  model::AbstractVIModel,
-  x0::AbstractVector;
-  rho0 :: Float64 = 0.5,
-  kwargs...
-)
+function ProjectionVI(model::AbstractVIModel, x0::AbstractVector; rho0::Float64 = 0.5, kwargs...)
   stp = GenericStopping(model, x0; kwargs...)
   return ProjectionVI(stp, rho0 = rho0)
 end
@@ -17,7 +12,7 @@ function abresidual!(model, xk, rho, Fx) # xk + rho * F(xk)
   return Fx
 end
 
-function ProjectionVI(stp::AbstractStopping; rho0 :: Float64 = 0.5)
+function ProjectionVI(stp::AbstractStopping; rho0::Float64 = 0.5)
   xk = stp.current_state.x
   xkp = similar(xk)
   rho = rho0

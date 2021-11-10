@@ -11,16 +11,15 @@ mutable struct NLSProjector{T, S} <: AbstractNLSModel{T, S}
   nls_meta::NLSMeta{T, S}
   counters::NLSCounters
   d::S
-  function NLSProjector(model::AbstractNLSModel{T, S}, d::S; name = "Projection over $(model.meta.name)") where {T, S}
+  function NLSProjector(
+    model::AbstractNLSModel{T, S},
+    d::S;
+    name = "Projection over $(model.meta.name)",
+  ) where {T, S}
     nvar = length(d)
     x0 = d #fill!(S(undef, nvar), zero(T))
     meta = NLPModelMeta{T, S}(nvar, x0 = x0, name = name)
-    nls_meta = NLSMeta{T, S}(
-      nvar,
-      nvar,
-      nnzj = nvar,
-      nnzh = 0,
-    )
+    nls_meta = NLSMeta{T, S}(nvar, nvar, nnzj = nvar, nnzh = 0)
     return new{T, S}(model, meta, nls_meta, NLSCounters(), d)
   end
 end
@@ -36,14 +35,18 @@ function NLPModels.jac_structure_residual!(
   cols::AbstractVector{<:Integer},
 )
   @lencheck model.nls_meta.nnzj rows cols
-  for i=1:model.meta.nvar
+  for i = 1:(model.meta.nvar)
     rows[i] = i
     cols[i] = i
   end
   return rows, cols
 end
 
-function NLPModels.jac_coord_residual!(model::NLSProjector{T, S}, x::AbstractVector, vals::AbstractVector) where {T, S}
+function NLPModels.jac_coord_residual!(
+  model::NLSProjector{T, S},
+  x::AbstractVector,
+  vals::AbstractVector,
+) where {T, S}
   @lencheck model.meta.nvar x
   @lencheck model.nls_meta.nnzj vals
   increment!(model, :neval_jac_residual)
@@ -89,7 +92,21 @@ function NLPModels.hprod_residual!(::NLSProjector, x, i, v, Hiv)
   return Hiv
 end
 
-for meth in [:cons!, :jth_congrad!, :jth_sparse_congrad, :jac_structure!, :jac_coord!, :jprod!, :jtprod!, :jth_hess_coord!, :jth_hprod!, :ghjvprod!, :hess_structure!, :hess_coord!, :hprod!]
+for meth in [
+  :cons!,
+  :jth_congrad!,
+  :jth_sparse_congrad,
+  :jac_structure!,
+  :jac_coord!,
+  :jprod!,
+  :jtprod!,
+  :jth_hess_coord!,
+  :jth_hprod!,
+  :ghjvprod!,
+  :hess_structure!,
+  :hess_coord!,
+  :hprod!,
+]
   premeth = Symbol("NLPModels.", meth)
   @eval begin
     $premeth(model::NLSProjector, args...; kwargs...) = $meth(model.model, args...; kwargs...)
