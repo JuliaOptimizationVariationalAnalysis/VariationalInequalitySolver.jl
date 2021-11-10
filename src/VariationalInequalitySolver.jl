@@ -1,6 +1,9 @@
 module VariationalInequalitySolver
 
-using FastClosures, LinearAlgebra, Logging, NLPModels
+using FastClosures, LinearAlgebra, Logging, NLPModels, Stopping
+
+import NLPModels: residual!, jac_structure_residual!, jac_coord_residual!, jprod_residual!, jtprod_residual!, jac_op_residual!, hess_structure_residual!, hess_coord_residual!, hprod_residual!, hess_op_residual!
+
 
 abstract type AbstractVIModel{T, S} end
 

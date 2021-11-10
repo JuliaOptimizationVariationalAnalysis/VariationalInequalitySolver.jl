@@ -3,31 +3,37 @@ export ProjectionVI
 function ProjectionVI(
   model::AbstractVIModel,
   x0::AbstractVector;
-  prec :: Float64 = 1e-6,
   rho0 :: Float64 = 0.5,
-  itmax :: Int64 = 10000,
+  kwargs...
 )
-  xk = copy(x0)
-  xkp = similar(xk)
-  rho = rho0
-  i=0
-  OK = false
-  Fx = similar(xk)
+  stp = GenericStopping(model, x0; kwargs...)
+  return ProjectionVI(stp, rho0 = rho0)
+end
+
+function abresidual!(model, xk, rho, Fx) # xk + rho * F(xk)
   residual!(model, xk, Fx)
   Fx .*= rho
-  Fx .+= xk # xk + rho * F(xk)
+  Fx .+= xk
+  return Fx
+end
 
-  #main loop
+function ProjectionVI(stp::AbstractStopping; rho0 :: Float64 = 0.5)
+  xk = stp.current_state.x
+  xkp = similar(xk)
+  rho = rho0
+  Fx = similar(xk)
+  abresidual!(stp.pb, xk, rho, Fx)
+
+  OK = update_and_start!(stp)
   while !OK
-    residual!(model, xk, Fx)
-    Fx .*= rho
-    Fx .+= xk # xk + rho * F(xk)
-    proj!(model, Fx, xkp) # possible failure here
+    abresidual!(stp.pb, xk, rho, Fx)
+    project!(stp.pb, Fx, xkp) # possible failure here
 
-    i=i+1
-    OK=(i>=itmax) || (norm(xk-xkp,Inf)<prec*rho )
-    xk = copy(xkp)
-  end #end of main loop
+    if norm(xk - xkp, Inf) < stp.meta.atol * rho
+      stp.meta.optimal = true
+    end
+    OK = OK || update_and_stop!(stp, x = xk)
+  end
 
   return xk
 end
