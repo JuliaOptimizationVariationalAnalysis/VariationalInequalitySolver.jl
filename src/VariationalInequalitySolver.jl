@@ -76,9 +76,6 @@ function project!(model::NLSVIModel, d::AbstractVector{T}, Px::AbstractVector{T}
 end
 
 include("solvers/projectionVI.jl")
-#=
-include("projector/ProjNLP.jl")
-include("solvers/penalizedVI.jl")
-=#
+include("solvers/projected_reflected_gradient.jl")
 
 end
