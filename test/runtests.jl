@@ -9,7 +9,9 @@ Random.seed!(1234)
   vi = NLSVIModel(nls)
   xr = rand(2)
   @test project(vi, xr) == xr
-  sol = ProjectionVI(vi, xr)
+  sol1 = ProjectionVI(vi, xr)
+  sol2 = ProjectedReflectedGradientVI(vi, xr)
+  @show sol1, sol2
 end
 
 @testset "Test API AbstractVIModel" begin

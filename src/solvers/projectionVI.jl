@@ -17,17 +17,16 @@ function ProjectionVI(stp::AbstractStopping; rho0::Float64 = 0.5)
   xkp = similar(xk)
   rho = rho0
   Fx = similar(xk)
-  abresidual!(stp.pb, xk, rho, Fx)
 
   OK = update_and_start!(stp)
   while !OK
     abresidual!(stp.pb, xk, rho, Fx)
-    project!(stp.pb, Fx, xkp) # possible failure here
+    project!(stp.pb, Fx, xk) # possible failure here
 
     if norm(xk - xkp, Inf) < stp.meta.atol * rho
       stp.meta.optimal = true
     end
-    OK = OK || update_and_stop!(stp, x = xk)
+    OK = update_and_stop!(stp, x = xk)
   end
 
   return xk
