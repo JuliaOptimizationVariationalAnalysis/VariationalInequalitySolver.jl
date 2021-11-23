@@ -1,6 +1,6 @@
 module VariationalInequalitySolver
 
-using FastClosures, LinearAlgebra, Logging, NLPModels, Stopping
+using FastClosures, LinearAlgebra, Logging, NLPModels, SparseArrays, Stopping
 
 import NLPModels:
   residual!,
