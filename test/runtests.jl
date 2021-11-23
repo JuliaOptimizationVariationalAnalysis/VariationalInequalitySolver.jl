@@ -23,7 +23,7 @@ end
 
     xr = ones(T, 2)
     @test residual(vi, xr) == T[0; 0]
-    J = T[ 1 0; -20 10]
+    J = T[1 0; -20 10]
     @test jac_residual(vi, xr) == J
     v = ones(T, 2)
     @test jprod_residual(vi, xr, v) == T[1; -10]

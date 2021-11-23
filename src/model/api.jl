@@ -283,7 +283,11 @@ function hprod_residual! end
     Hop = hess_op_residual(model, x, i)
 Computes the Hessian of the i-th residual at x, in linear operator form.
 """
-function NLPModels.hess_op_residual(model::AbstractVIModel{T, S}, x::AbstractVector{T}, i::Int) where {T, S}
+function NLPModels.hess_op_residual(
+  model::AbstractVIModel{T, S},
+  x::AbstractVector{T},
+  i::Int,
+) where {T, S}
   @lencheck model.meta.nvar x
   Hiv = S(undef, model.meta.nvar)
   return hess_op_residual!(model, x, i, Hiv)
