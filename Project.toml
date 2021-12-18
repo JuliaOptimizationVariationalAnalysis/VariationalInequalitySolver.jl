@@ -15,6 +15,6 @@ Stopping = "c4fe5a9e-e7fb-5c3d-89d5-7f405ab2214f"
 [compat]
 CaNNOLeS = "0.5"
 FastClosures = "0.3"
-NLPModels = "0.17"
+NLPModels = "0.17, 0.18"
 Stopping = "0.3"
 julia = "1"
